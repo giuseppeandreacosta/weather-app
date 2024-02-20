@@ -1,32 +1,37 @@
 // key openweathermap.com
 const apiKey = "e25fda2bdb2bfb50971e69a418ab0ed0";
-const submit = document.querySelector('.submit-btn');
+const apiUrl = "https://api.openweathermap.org/data/2.5/weather?units=metric&q="
+const search = document.querySelector(".input-field")
+const submit = document.querySelector(' .submit-btn');
+const weatherIcons = document.querySelector(".weatherIcons")
 
-submit.addEventListener('click', async (e) => {
-    e.preventDefault(); // Prevent the default form submission
 
-    const cityInput = document.querySelector('#cityInput'); // Assuming you have an input field with the id 'cityInput'
-    const city = cityInput.value;
+async function checkWeather(city) {
+    const response = await fetch(apiUrl + city + `&appid=${apiKey}`);
+    const data = await response.json();
 
-    try {
-        const weatherData = await getWeather(city);
-        console.log(weatherData);
-        // Handle the weather data as needed
-    } catch (error) {
-        console.error("Error fetching weather data:", error);
-        // Handle errors (e.g., show an error message to the user)
-    }
-});
+    console.log(data);
 
-const getWeather = async (city) => {
-    try {
-        const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`);
-        if (!response.ok) {
-            throw new Error(`Error: ${response.statusText}`);
-        }
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        throw new Error(`Error fetching weather data: ${error.message}`);
-    }
-};
+
+    document.querySelector(".location").innerHTML = data.name
+    document.querySelector(".temp").innerHTML = Math.round( data.main.temp )+ "°C"
+    document.querySelector(".wind-speed").innerHTML = data.wind.speed + " km/h"
+    document.querySelector(".humidity-perc").innerHTML = data.main.humidity + "%"
+
+    if (data.weather[0].main == "Clouds"){
+        weatherIcons.src = "assets/img/clouds.png";
+    } else if (data.weather[0].main == "Clear"){
+        weatherIcons.src ="assets/img/clear.png"
+    }else if (data.weather[0].main == "Rain"){
+        weatherIcons.src = "assets/img/rain.png"
+    } else if (data.weather[0].main == "Drizzle"){
+        weatherIcons.src = "assets/img/drizzle.png"
+    } else if (data.weather[0].main == "Mist"){
+        weatherIcons.src= "assets/img/mist.png"
+    }  
+
+}
+
+submit.addEventListener("click", ()=> {
+    checkWeather(search.value   )
+})
